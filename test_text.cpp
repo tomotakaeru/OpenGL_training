@@ -5,6 +5,7 @@
 #include <memory>
 #include "Shape.h"
 #include "Window.h"
+#include "Matrix.h"
 
 
 // Display compile result of shader obj
@@ -199,9 +200,7 @@ int test_text(void)
 	const GLuint program(loadProgram("point.vert", "point.frag"));
 
 	// uniform 変数の場所を取得する
-	const GLint sizeLoc(glGetUniformLocation(program, "size"));
-	const GLint scaleLoc(glGetUniformLocation(program, "scale"));
-	const GLint locationLoc(glGetUniformLocation(program, "location"));
+	const GLint modelviewLoc(glGetUniformLocation(program, "modelview"));
 
 	// Create shape data
 	std::unique_ptr<const Shape> shape(new Shape(2, 4, rectangleVertex)); 
@@ -214,11 +213,27 @@ int test_text(void)
 		// Use shader program
 		glUseProgram(program); 
 
-		// uniform 変数に値を設定する
-		glUniform2fv(sizeLoc, 1, window.getSize());
-		glUniform1f(scaleLoc, window.getScale());
-		glUniform2fv(locationLoc, 1, window.getLocation());
+		// 拡大縮小の変換行列を求める
+		const GLfloat *const size(window.getSize());
+		const GLfloat scale(window.getScale() * 2.0f);
+		const Matrix scaling(Matrix::scale(scale / size[0], scale / size[1], 1.0f)); 
 
+		// 平行移動の変換行列を求める
+		const GLfloat *const position(window.getLocation());
+		const Matrix translation(Matrix::translate(position[0], position[1], 0.0f)); 
+
+		// モデル変換行列を求める
+		const Matrix model(translation * scaling);
+
+		// ビュー変換行列を求める
+		const Matrix view(Matrix::lookat(0.0f, 0.0f, 0.0f, -1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 0.0f)); 
+
+		// モデルビュー変換行列を求める
+		const Matrix modelview(view * model); 
+
+		// uniform 変数に値を設定する
+		glUniformMatrix4fv(modelviewLoc, 1, GL_FALSE, modelview.data()); 
+		
 		// Draw here
 		shape->draw();
 
