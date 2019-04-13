@@ -318,6 +318,11 @@ int test_text(void)
 	glCullFace(GL_BACK);
 	glEnable(GL_CULL_FACE);
 
+	// デプスバッファを有効にする
+	glClearDepth(1.0);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
+
 	// Create program object
 	const GLuint program(loadProgram("point.vert", "point.frag"));
 
@@ -337,7 +342,7 @@ int test_text(void)
 	// Loop until the user closes the window
 	while (!window.shouldClose()) {
 		// Clear window
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Use shader program
 		glUseProgram(program); 
@@ -368,6 +373,16 @@ int test_text(void)
 
 		// Draw here
 		shape->draw();
+
+		// 二つ目のモデルビュー変換行列を求める
+		const Matrix modelview1(modelview * Matrix::translate(0.0f, 0.0f, 3.0f)); 
+
+		// uniform 変数に値を設定する
+		glUniformMatrix4fv(modelviewLoc, 1, GL_FALSE, modelview1.data()); 
+
+		// 二つ目の図形を描画する
+		shape->draw(); 
+
 
 		// Swap front and back buffers & wait for events
 		window.swapBuffers();
