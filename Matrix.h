@@ -214,4 +214,75 @@ public:
 		// 視点の平行移動の変換行列に視線の回転の変換行列を乗じる
 		return rv * tv;
 	} 
+
+	// 直交投影変換行列を作成する
+	static Matrix orthogonal(GLfloat left, GLfloat right,
+		GLfloat bottom, GLfloat top,
+		GLfloat zNear, GLfloat zFar)
+	{
+		Matrix t;
+		const GLfloat dx(right - left);
+		const GLfloat dy(top - bottom);
+		const GLfloat dz(zFar - zNear); 
+
+		if (dx != 0.0f && dy != 0.0f && dz != 0.0f)
+		{
+			t.loadIdentity();
+			t.matrix[0] = 2.0f / dx;
+			t.matrix[5] = 2.0f / dy;
+			t.matrix[10] = -2.0f / dz;
+			t.matrix[12] = -(right + left) / dx;
+			t.matrix[13] = -(top + bottom) / dy;
+			t.matrix[14] = -(zFar + zNear) / dz;
+		}
+
+		return t;
+	}
+
+	// 視錘台を指定して透視投影変換行列を作成する
+	static Matrix frustum(GLfloat left, GLfloat right,
+		GLfloat bottom, GLfloat top,
+		GLfloat zNear, GLfloat zFar)
+	{
+		Matrix t;
+		const GLfloat dx(right - left);
+		const GLfloat dy(top - bottom);
+		const GLfloat dz(zFar - zNear); 
+
+		if (dx != 0.0f && dy != 0.0f && dz != 0.0f)
+		{
+			t.loadIdentity();
+			t.matrix[0] = 2.0f * zNear / dx;
+			t.matrix[5] = 2.0f * zNear / dy;
+			t.matrix[8] = (right + left) / dx;
+			t.matrix[9] = (top + bottom) / dy;
+			t.matrix[10] = -(zFar + zNear) / dz;
+			t.matrix[11] = -1.0f;
+			t.matrix[14] = -2.0f * zFar * zNear / dz;
+			t.matrix[15] = 0.0f;
+		}
+
+		return t;
+	}
+
+	// 画角を指定して透視投影変換行列を作成する
+	static Matrix perspective(GLfloat fovy, GLfloat aspect,
+		GLfloat zNear, GLfloat zFar)
+	{
+		Matrix t;
+		const GLfloat dz(zFar - zNear); 
+
+		if (dz != 0.0f) {
+			t.loadIdentity();
+			t.matrix[5] = 1.0f / tan(fovy * 0.5f);
+			t.matrix[0] = t.matrix[5] / aspect;
+			t.matrix[10] = -(zFar + zNear) / dz;
+			t.matrix[11] = -1.0f;
+			t.matrix[14] = -2.0f * zFar * zNear / dz;
+			t.matrix[15] = 0.0f;
+		}
+
+		return t;
+	}
+
 };
