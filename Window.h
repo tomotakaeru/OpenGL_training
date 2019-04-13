@@ -85,10 +85,11 @@ public:
 		glfwSwapBuffers(window); 
 
 		// イベントを取り出す
-		if (keyStatus == GLFW_RELEASE)
-			glfwWaitEvents();
-		else
-			glfwPollEvents();
+		//if (keyStatus == GLFW_RELEASE)
+		//	glfwWaitEvents();
+		//else
+		//	glfwPollEvents();
+		glfwPollEvents();
 
 		// キーボードの状態を調べる
 		if (glfwGetKey(window, GLFW_KEY_LEFT) != GLFW_RELEASE)
