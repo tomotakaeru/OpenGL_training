@@ -16,6 +16,9 @@ public:
 	struct Vertex {
 		// 位置
 		GLfloat position[3];
+
+		// 色
+		GLfloat color[3];
 	};
 
 	//コンストラクタ
@@ -37,8 +40,10 @@ public:
 		glBufferData(GL_ARRAY_BUFFER, vertexcount * sizeof(Vertex), vertex, GL_STATIC_DRAW);
 
 		// 結合されている頂点バッファオブジェクトを in 変数から参照できるようにする
-		glVertexAttribPointer(0, size, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(0, size, GL_FLOAT, GL_FALSE, sizeof(Vertex), static_cast<Vertex *>(0)->position);
 		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), static_cast<Vertex *>(0)->color);
+		glEnableVertexAttribArray(1);
 
 		// インデックスの頂点バッファオブジェクト
 		glGenBuffers(1, &ibo);
